@@ -228,6 +228,9 @@ Consider the conversation history if provided to maintain conversational flow an
   - Scrutinize both `Knowledge Graph Data` and `Document Chunks` in the **Context**. Identify and extract all pieces of information that are directly relevant to answering the user query.
   - Weave the extracted facts into a coherent and logical response. Your own knowledge must ONLY be used to formulate fluent sentences and connect ideas, NOT to introduce any external information.
   - Track the reference_id of the document chunk which directly support the facts presented in the response. Correlate reference_id with the entries in the `Reference Document List` to generate the appropriate citations.
+  - Every sentence that contains any factual claim MUST end with inline citation(s) using `[reference_id]`. If multiple chunks support the same sentence, append multiple ids in ascending order without spaces (e.g., `[3][7]`). Do NOT include any uncited factual sentences; if a fact is not supported by the Context, remove it or explicitly state that the information is unavailable.
+  - Inline citations MUST contain only the numeric `reference_id` inside square brackets. Do NOT include document titles, file names, keywords, authors, years, or any other text inside the brackets.
+  - If there is at least one relevant `Document Chunk` in the Context, include at least one citation in the answer body. If no chunks support the query, explicitly state that there is not enough information to answer.
   - Generate a references section at the end of the response. Each reference document must directly support the facts presented in the response.
   - Do not generate anything after the reference section.
 
@@ -242,19 +245,21 @@ Consider the conversation history if provided to maintain conversational flow an
 
 4. References Section Format:
   - The References section should be under heading: `### References`
-  - Reference list entries should adhere to the format: `* [n] Document Title`. Do not include a caret (`^`) after opening square bracket (`[`).
-  - The Document Title in the citation must retain its original language.
+  - Reference list entries MUST follow: `- [n] FileName - (keywords)`.
+    - Include ONLY reference_ids that actually appear as inline citations in the answer body, listed in ascending order.
+    - Use the document file name from the `Reference Document List`. If file name is not available, fall back to the original document title.
+    - `keywords` are 1–5 concise terms summarizing the cited content, separated by comma. This field is REQUIRED and MUST NOT be empty, and should be in English.
   - Output each citation on an individual line
-  - Provide maximum of 5 most relevant citations.
+  - Provide all and only citations that are used in the answer body.
   - Do not generate footnotes section or any comment, summary, or explanation after the references.
 
 5. Reference Section Example:
 ```
 ### References
 
-- [1] Document Title One
-- [2] Document Title Two
-- [3] Document Title Three
+- [1] chapter1.pdf - (neural network, learning rule)
+- [2] chapter2.pdf - (backpropagation, gradient descent)
+- [3] appendix_a.pdf - (activation function)
 ```
 
 6. Additional Instructions: {user_prompt}
@@ -282,6 +287,9 @@ Consider the conversation history if provided to maintain conversational flow an
   - Scrutinize `Document Chunks` in the **Context**. Identify and extract all pieces of information that are directly relevant to answering the user query.
   - Weave the extracted facts into a coherent and logical response. Your own knowledge must ONLY be used to formulate fluent sentences and connect ideas, NOT to introduce any external information.
   - Track the reference_id of the document chunk which directly support the facts presented in the response. Correlate reference_id with the entries in the `Reference Document List` to generate the appropriate citations.
+  - Every sentence that contains any factual claim MUST end with inline citation(s) using `[reference_id]`. If multiple chunks support the same sentence, append multiple ids in ascending order without spaces (e.g., `[3][7]`). Do NOT include any uncited factual sentences; if a fact is not supported by the Context, remove it or explicitly state that the information is unavailable.
+  - Inline citations MUST contain only the numeric `reference_id` inside square brackets. Do NOT include document titles, file names, keywords, authors, years, or any other text inside the brackets.
+  - If there is at least one relevant `Document Chunk` in the Context, include at least one citation in the answer body. If no chunks support the query, explicitly state that there is not enough information to answer.
   - Generate a **References** section at the end of the response. Each reference document must directly support the facts presented in the response.
   - Do not generate anything after the reference section.
 
@@ -296,19 +304,21 @@ Consider the conversation history if provided to maintain conversational flow an
 
 4. References Section Format:
   - The References section should be under heading: `### References`
-  - Reference list entries should adhere to the format: `* [n] Document Title`. Do not include a caret (`^`) after opening square bracket (`[`).
-  - The Document Title in the citation must retain its original language.
+  - Reference list entries MUST follow: `- [n] FileName - (keywords)`.
+    - Include ONLY reference_ids that actually appear as inline citations in the answer body, listed in ascending order.
+    - Use the document file name from the `Reference Document List`. If file name is not available, fall back to the original document title.
+    - `keywords` are 1-5 concise terms summarizing the cited content, separated by comma. This field is REQUIRED and MUST NOT be empty.
   - Output each citation on an individual line
-  - Provide maximum of 5 most relevant citations.
+  - Provide all and only citations that are used in the answer body.
   - Do not generate footnotes section or any comment, summary, or explanation after the references.
 
 5. Reference Section Example:
 ```
 ### References
 
-- [1] Document Title One
-- [2] Document Title Two
-- [3] Document Title Three
+- [1] chapter1.pdf - (principal component, variance)
+- [2] chapter2.pdf - (ICA, independence)
+- [3] appendix_a.pdf - (notation)
 ```
 
 6. Additional Instructions: {user_prompt}
